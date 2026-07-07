@@ -10,6 +10,7 @@ from pathlib import Path
 
 ARUCO_DICTIONARIES = {'4X4_50': cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50),
                         '4X4_100': cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_100),
+                        '4X4_1000': cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_1000),
                         '5X5_50': cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_50),
                         '6X6_50': cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_50),
                         '7X7_50': cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_7X7_50)}
