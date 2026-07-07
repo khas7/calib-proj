@@ -28,8 +28,10 @@ def detect_aruco_markers(image,
     if add_half_pixel_shift is None:
         raise ValueError("add_half_pixel_shift must be set to True or False")
     
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
+    if len(image.shape) == 3:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = image.copy()
 
     # dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
     if parameters is None:
@@ -56,7 +58,7 @@ def detect_aruco_markers(image,
         if ids is not None:
             cv2.aruco.drawDetectedMarkers(image, corners, ids)
         if show_draw_img:   
-            cv2.imshow('image', image)
+            cv2.imshow('image', cv2.resize(image, (image.shape[1]//8, image.shape[0]//8)))
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
