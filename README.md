@@ -191,7 +191,9 @@ Required arguments:
 | `--intrinsics_folder`  | Folder containing the camera intrinsics          |
 | `--sequence_info_path` | Path to the projection-sequence metadata         |
 | `--start_time`         | Exact start time of the marker sequence          |
+                         | 'HH:MM:SS.ms'                                    |
 | `--end_time`           | Exact end time of the marker sequence            |
+                         | 'HH:MM:SS.ms'                                    |
 
 Optional arguments:
 

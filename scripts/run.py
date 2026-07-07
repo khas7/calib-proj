@@ -98,14 +98,14 @@ parser.add_argument(
     "--start_time",
     type=str,
     required=True,
-    help="The exact start time of the marker sequence in the video. This must be determined beforehand."
+    help="The exact start time of the marker sequence in the video. This must be determined beforehand. 'HH:MM:SS.ms'"
 )
 
 parser.add_argument(
     "--end_time",
     type=str,
     required=True,
-    help="The exact end time of the marker sequence in the video. This must be determined beforehand."
+    help="The exact end time of the marker sequence in the video. This must be determined beforehand. 'HH:MM:SS.ms'"
 )
 
 parser.add_argument(
