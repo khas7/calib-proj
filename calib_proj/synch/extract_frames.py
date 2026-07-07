@@ -73,9 +73,9 @@ def extract_video_frames_ffmpeg(
             f"Missing {len(missing_files)} output files."
         )
 
-def extract_frames(videos_folder, sequence_info_path, start_idx, end_idx, offset, out_folder_path):
+def extract_frames(videos_folder, sequence_info_path, start_idx, end_idx, out_folder_path):
 
-    effective_start_idx = start_idx + (offset or 0)
+    effective_start_idx = start_idx
     videos_path = {}
     for video_file in os.listdir(videos_folder):
         if video_file.lower().endswith(('.mp4', '.mkv', '.avi', '.mov')):

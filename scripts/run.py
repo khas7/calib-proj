@@ -94,13 +94,9 @@ parser.add_argument(
 
 parser.add_argument(
     "--end_time",
-    type=str
-)
-
-parser.add_argument(
-    "--offset",
-    type=int,
-    default=None
+    type=str,
+    required=True,
+    help="The exact end time of the marker sequence in the video. This must be determined beforehand."
 )
 
 parser.add_argument(
@@ -202,7 +198,7 @@ else:
 
 ###################### FRAMES EXTRACTION ###########################
 if not images_parent_folder.exists():
-    extract_frames(videos_folder, sequence_info_path, start_idx, end_idx, args.offset, images_parent_folder)
+    extract_frames(videos_folder, sequence_info_path, start_idx, end_idx, images_parent_folder)
 
 ###################### PRE-PROCESSING: MARKER DETECTION ###########################
 correspondences_path = out_folder_calib / "correspondences.json"
