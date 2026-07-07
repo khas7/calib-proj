@@ -80,7 +80,9 @@ intrinsics = construct_cameras_intrinsics(images_parent_folder, intrinsics_folde
 correspondences = convert_to_correspondences(msm_centers)
 external_calibrator = ExternalCalibrator(correspondences=correspondences,
                                         intrinsics=intrinsics,
-                                        config=external_calibrator_config
+                                        config=external_calibrator_config,
+                                        save_corr=save_corr,
+                                        out_path=out_folder_calib
                                         )
 print(f"\nCalibration started...")
 success = external_calibrator.calibrate()

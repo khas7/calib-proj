@@ -3,6 +3,7 @@ import numpy as np
 import itertools
 import cv2
 import copy
+import json
 
 from calib_commons.types import idtype
 from calib_commons.world_frame import WorldFrame 
@@ -29,11 +30,27 @@ class ExternalCalibrator:
                  correspondences, 
                  intrinsics: Dict[idtype, Intrinsics], 
                  config: ExternalCalibratorConfig,
-                ): 
+                 save_corr: bool = False,
+                 out_path = None
+                ):
+        
+        self.out_path = out_path
         self.config = config
         self.intrinsics = intrinsics
         self.correspondences = copy.deepcopy(correspondences)
+        if save_corr: 
+            self.tmp_save_correspondences()
         self.estimate = Estimate(SOLVING_LEVEL=self.config.SOLVING_LEVEL)  # current estimate
+    
+    def tmp_save_correspondences(self):
+        new_corr = {}
+        for cam in self.correspondences.keys():
+            new_corr[cam] = {}
+            for ids, obs in self.correspondences[cam].items():
+                new_corr[cam][ids] = obs._2d.tolist()
+
+        with open(self.out_path / "correspondences.json", "w") as f:
+            json.dump(new_corr, f)
 
     def calibrate(self): 
         # bootstrapping
