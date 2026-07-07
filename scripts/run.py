@@ -21,10 +21,153 @@ from calib_proj.synch.extract_frames import extract_frames
 # random seed
 np.random.seed(3)
 
+import argparse
+
+def parse_time(start_time, end_time) -> tuple[int]:
+    if start_time is None:
+        start_idx = 0
+    else:
+        t = start_time.split(":")
+        t = float(t[0]) * 3600 + float(t[1]) * 60 + float(t[2])
+        start_idx = int(t * 30)
+    if end_time is None:
+        end_idx = -1
+    else:
+        t = end_time.split(":")
+        t = float(t[0]) * 3600 + float(t[1]) * 60 + float(t[2])
+        end_idx = int(t * 30)
+
+    return start_idx, end_idx
+
+def parse_clahe(clahe_clip=None, clahe_grid: str=None):
+    if clahe_clip is None and clahe_grid is None:
+        return None, None
+    
+    if clahe_grid is None:
+        return clahe_clip, (8, 8)
+    
+    clahe_grid = tuple([int(clahe_grid.split(",")[i].strip(" ")) for i in range(len(clahe_grid.split(",")))])
+    if clahe_clip is None:
+        return 2, clahe_grid
+
+    return clahe_clip, clahe_grid
+
+def parse_norm(alpha: int = None, beta: int = None) -> list[int]:
+    if alpha is None and beta is None:
+        return None
+    if alpha is None:
+        return [0, beta]
+    if beta is None:
+        return [alpha, 255]
+    return [alpha, beta]
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    "--video_folder",
+    type=str
+)
+
+parser.add_argument(
+    "--intrinsics_folder",
+    type=str
+)
+
+parser.add_argument(
+    "--output_folder",
+    type=str,
+    default=r".\results"
+)
+
+parser.add_argument(
+    "--sequence_info_path",
+    type=str
+)
+
+parser.add_argument(
+    "--start_time",
+    type=str
+)
+
+parser.add_argument(
+    "--end_time",
+    type=str
+)
+
+parser.add_argument(
+    "--offset",
+    type=int,
+    default=None
+)
+
+parser.add_argument(
+    "--alpha",
+    type=int,
+    default=None
+)
+
+parser.add_argument(
+    "--beta",
+    type=int,
+    default=None
+)
+
+parser.add_argument(
+    "--gamma",
+    type=float,
+    default=None
+)
+
+parser.add_argument(
+    "--clahe_clip",
+    type=int,
+    default=None
+)
+
+parser.add_argument(
+    "--clahe_grid",
+    type=str,
+    default=None
+)
+
+parser.add_argument(
+    "--debug_preprocessing",
+    action="store_true",
+    default=False
+)
+
+parser.add_argument(
+    "--save_scene",
+    action="store_true",
+    default=False
+)
+
+args = parser.parse_args()
+
+start_idx, end_idx = parse_time(args.start_time, args.end_time)
+
+clahe_clip, clahe_grid = parse_clahe(args.clahe_clip, args.clahe_grid)
+norm_bounds = parse_norm(args.alpha, args.beta)
+clahe = None
+if clahe_clip is None and clahe_grid is None and norm_bounds is None and args.gamma is None:
+    preprocess_images = False
+else:
+    preprocess_images = True
+
+if clahe_clip is not None and clahe_grid is not None:
+    clahe = cv2.createCLAHE(clipLimit=clahe_clip, tileGridSize=clahe_grid)
+
+if args.video_folder is None:
+    raise ValueError("Please provide a path for gopro videos '--video_folder'")
+if args.intrinsics_folder is None:
+    raise ValueError("Please provide a path for intrinsics '--intrinsics_path")
+if args.sequence_info_path is None:
+    raise ValueError("Please provide a path for sequence_info_path '--sequence_info_path'")
+
 ############################### USER INTERFACE ####################################
 # PATHS
-videos_folder = Path(r"C:\Users\timfl\Documents\test_calibProj\video")
-intrinsics_folder = Path(r"C:\Users\timfl\Documents\test_calibProj\intrinsics_tim\calibrate_intrinsics_output\camera_intrinsics")
+videos_folder = Path(args.video_folder)
+intrinsics_folder = Path(args.intrinsics_folder)
 
 # CALIBRATION PARAMETERS
 external_calibrator_config = ExternalCalibratorConfig(
@@ -40,17 +183,13 @@ save_detection_images = False
 show_viz = True
 save_viz = False
 save_eval_metrics_to_json = True
-save_scene = False
+save_scene = args.save_scene
 save_final_correspondences = False
 
 ############################### END USER INTERFACE ####################################
 
-
-
-out_folder_calib = Path("results")
-sequence_info_path = Path(r"video\seq_info.json")
-
-
+out_folder_calib = Path(args.output_folder)
+sequence_info_path = Path(args.sequence_info_path)
 
 ###################### TEMPORAL SYNCHRONIZATION ###########################
 start_end_frames = synch(videos_folder, sequence_info_path, threshold=0.6)
