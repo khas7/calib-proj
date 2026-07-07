@@ -287,6 +287,22 @@ python .\scripts\eval_calib.py \
     --save_json
 ```
 
+## TODO
+
+* [ ] Replace the current initialization of the first two camera poses.
+
+  The relative pose of the first camera pair is currently estimated by decomposing a homography. This approach assumes that the observed marker positions are coplanar or approximately coplanar, which is not generally valid for projections onto non-planar surgical surfaces.
+
+  A future implementation should use an initialization method that supports general non-planar point configurations. Possible approaches include:
+
+  * standard incremental structure from motion using the available point correspondences,
+  * the incremental reconstruction pipelines provided by COLMAP or OpenMVG,
+  * epipolar-geometry-based initialization using an essential matrix,
+  * approximate camera and 3D-point initialization followed by bundle adjustment.
+
+  Since the projected-marker tracks are typically observed by a large fraction of the cameras, the bundle-adjustment problem may be sufficiently constrained to converge from approximate initial values. Nevertheless, a dedicated non-planar initialization method is preferable to reduce the risk of incorrect local minima and correspondence rejection.
+
+
 ## Citation
 
 ```bibtex
