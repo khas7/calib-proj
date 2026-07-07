@@ -1,183 +1,292 @@
-
 <div align="center">
-<h1>CalibProj: Automatic Calibration of a Multi-Camera System 
+
+<h1>
+CalibProj: Automatic Calibration of a Multi-Camera System  
 with Limited Overlapping Fields of View  
 for 3D Surgical Scene Reconstruction
-
 </h1>
 
+[**Tim Flückiger**](https://www.linkedin.com/in/timflueckiger/)<sup>★</sup> ·
+[**Jonas Hein**](https://scholar.google.com/citations?user=Kk_o9AYAAAAJ&hl=fr&oi=ao) ·
+[**Valery Fischer**](https://www.linkedin.com/in/valery-fischer/) <br>
+[**Philipp Fürnstahl**](https://scholar.google.com/citations?user=nQ4B3BgAAAAJ&hl=fr) ·
+[**Lilian Calvet**](https://scholar.google.com/citations?user=6JewdrMAAAAJ&hl=fr)
 
-[**Tim Flückiger**](https://www.linkedin.com/in/timflueckiger/)<sup>&#9733;</sup> · [**Jonas Hein**](https://scholar.google.com/citations?user=Kk_o9AYAAAAJ&hl=fr&oi=ao)<sup></sup> · [**Valery Fischer**](https://www.linkedin.com/in/valery-fischer/)<sup></sup>
-<br>
-[**Philipp Fürnstahl**](https://scholar.google.com/citations?user=nQ4B3BgAAAAJ&hl=fr)<sup></sup> · [**Lilian Calvet**](https://scholar.google.com/citations?user=6JewdrMAAAAJ&hl=fr)<sup></sup>
+<span>★</span> corresponding author
 
-<span>&#9733;</span> corresponding author
+<a href="https://doi.org/10.1007/s11548-025-03413-1">
+  <img src="https://img.shields.io/badge/paper-grey" alt="Paper PDF" height="30">
+</a>
 
-<a href='https://doi.org/10.1007/s11548-025-03413-1'><img src='https://img.shields.io/badge/paper-grey' alt='Paper PDF' height="30"></a>
+<a href="https://tflueckiger.github.io/calib-proj/">
+  <img src="https://img.shields.io/badge/Project_Page-CalibProj-blue" alt="Project Page" height="30">
+</a>
 
-<a href='https://tflueckiger.github.io/calib-proj/'><img src='https://img.shields.io/badge/Project_Page-CalibProj-blue' alt='Project Page' height="30"></a>
 </div>
 
+## Automatic Multi-Camera External Calibration Using Projected Markers
 
-<!-- ![Image](https://github.com/user-attachments/assets/37ad247e-3380-4082-b493-3d8a585ac817) -->
+CalibProj is a Python toolkit for automatically estimating the extrinsic parameters of multi-camera systems with limited field-of-view overlap.
 
-<p align="center">
-  <img src="docs/static/images/SDT_ORX_Illustration.png" style="width:70%;" alt="TODO" />
-</p>
+The original method uses multi-scale markers projected onto a planar surface. This extension instead processes markers of a **single predefined size** projected onto the non-planar surface of an operating table.
 
-##  Automatic Multi-Camera External Calibration Using Projected Markers
+The target cameras are near-field cameras observing the surgical field. The projected markers should therefore be visible on the operating table from the relevant near-field viewpoints.
 
-We present  <span style="font-variant:small-caps;">CalibProj</span>, a Python toolkit for <b>automatically calibrating the positions and orientations of multiple cameras</b>, even when they have very limited field of view overlap or they have very different zoom levels. Unlike traditional methods, this approach requires <b>no manual intervention, calibration board, or prior calibration expertise.</b>
+The projector does not need to be geometrically calibrated.
 
-<span style="font-variant:small-caps;">CalibProj</span> uses a ceiling-mounted projector to display specially designed multi-scale markers (MSMs)—2D patterns at varying sizes—onto the scene. These projected markers can be seen from multiple angles and distances, enabling cameras with different viewpoints and zoom settings to detect and extract accurate feature correspondences. Importantly, <b>the projector itself does not need to be calibrated.</b>
-Such a system is especially useful for:
+## Installation
 
-<ul>
-<li>Camera networks with different fields of view (e.g., in an operating room)</li>
-<li>Multi-zoom or pan-tilt-zoom (PTZ) camera installations</li>
-<li>Surveillance systems with cameras mounted far apart</li>
-</ul>
+### Install `calib-commons`
 
-
-## **Table of Contents** 📋
-- [Installation](#installation) 
-- [Documentation](#documentation) 
-- [How To Use](#how-to-use) 
-- [Citation](#citation)
-- [License](#license) 
-- [Acknowledgments](#acknowledgments)
-
-## **Installation** 
-
-
-### Dependencies (calib-commons) ⛓️
-The package depends on the custom utilities Python package 🧰 [`calib-commons`](https://github.com/tflueckiger/calib-commons). To install it:
-
-   ```bash
-   # clone the repos
-   git clone https://github.com/tflueckiger/calib-commons.git
-   cd calib-commons
-   # install the package with pip
-   pip install .
-   # optional: install in editable mode:
-   pip install -e . --config-settings editable_mode=strict
-   ```
-
-> ⛓️ Dependencies : if the additional dependencies listed in requirements.txt are not satisfied, they will be automatically installed from PyPi. 
-
-
-### Installation of CalibProj
-
- ```bash
-   # clone the repos
-   git clone https://github.com/tflueckiger/calib-proj.git
-   cd calib-proj
-   # install the package with pip
-   pip install .
-   # optional: install in editable mode:
-   pip install -e . --config-settings editable_mode=strict
-   ```
----
-
-
-
-## **Documentation** 
-
-### 📝 **Prequisites**
-Ensure you have the following before running the package:
-
- **Internal Camera Parameters (Intrinsics)** ⚙️📷
->💡 This can be done using using the [`calib-commons`](https://github.com/tflueckiger/calib-commons) toolbox, which includes a ['calibrate-intrinsics'](https://github.com/tflueckiger/calib-commons?tab=readme-ov-file#calibrate-intrinsics) command-line tool for automatic internal calibration of multiple cameras using either videos recordings or images. The tool creates a folder containing camera intrinsics in JSON files matching the required format. See here for documentation on how to generate intrinsics with ['calibrate-intrinsics'](https://github.com/tflueckiger/calib-commons?tab=readme-ov-file#calibrate-intrinsics).
-
-
-
-## **How To Use**
-
-### 1. Projection Sequence Generation
-
-To generate a projection sequence in **.mp4** format, run the script `scripts/run_video_generator.py`: 
 ```bash
-   python scripts/run_video_generator.py
+git clone https://github.com/tflueckiger/calib-commons.git
+cd calib-commons
+
+pip install .
+
+# Optional editable installation
+pip install -e . --config-settings editable_mode=strict
 ```
-By default this will create a video of 40s containing 3200 multi-scale markers (MSMs) with 4 scales.
 
+### Install CalibProj
 
-The video will be saved in `video/video.mp4` and a file containing metadata about the sequence is saved in `video/seq_info.json`.
+```bash
+git clone https://github.com/tflueckiger/calib-proj.git
+cd calib-proj
 
+pip install .
 
-### 2. Acquisition 
+# Optional editable installation
+pip install -e . --config-settings editable_mode=strict
+```
 
-Mount the projector on the ceiling and start the projection sequence.
+## Prerequisites
 
-### 3. Calibration 
-To run the calibration system, modify the parameters in the user interface of the script `scripts/run.py`. 
+Before running the calibration:
 
-In particular, 
+1. The intrinsic parameters of all cameras must be known.
+2. The camera videos must already be temporally synchronized using [ROCSync](https://github.com/jaromeyer/RocSync).
 
-- **videos_folder** must be the path to the folder containing the cameras recordings as follows:
+The filenames of the synchronized videos and intrinsic calibration files must use matching camera identifiers.
 
-```plaintext
-videos_folder/
-├── camera1.mp4
-├── camera2.mp4
+```text
+videos/
+├── camera02.mp4
+├── camera03.mp4
 └── ...
-```
-- **intrinsics_folder** must be the path to the folder containing the cameras intrinsics as follows:
 
-
-```plaintext
-intrinsics_folder/
-├── camera1_intrinsics.json
-├── camera2_intrinsics.json
+intrinsics/
+├── camera02_intrinsics.json
+├── camera03_intrinsics.json
 └── ...
 ```
 
->💡 This can be done using using the ['calibrate-intrinsics'](https://github.com/tflueckiger/calib-commons?tab=readme-ov-file#calibrate-intrinsics) tool of the [`calib-commons`](https://github.com/tflueckiger/calib-commons) toolbox.
+## How to Use
 
+### 1. Generate a Projection Sequence
 
-To start the calibration:
+#### Moving Markers
 
 ```bash
-   python scripts/run.py
+python .\scripts\generate_moving_markers.py -h
 ```
 
-The will run the 4 steps: 
-- temporal synchronization 
-- frames extraction 
-- MSMs detection 
-- calibration 
+```text
+usage: generate_moving_markers.py [-h] --out_file OUT_FILE
+                                  [--show_image]
+                                  [--projector_height PROJECTOR_HEIGHT]
+                                  [--effective_size EFFECTIVE_SIZE]
+                                  [--color_space]
+                                  [--marker_sizes MARKER_SIZES]
+```
 
+| Argument             | Description                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------- |
+| `--out_file`         | Output path of the generated video                                                  |
+| `--show_image`       | Displays the first generated image for debugging                                    |
+| `--projector_height` | Projector height above the projection surface; default: `1.1 m`                     |
+| `--effective_size`   | Effective projected area in metres `[y, x]`; default: `[0.4, 2.0]`                  |
+| `--color_space`      | Projects black pixels in the red color channel to improve contrast on some surfaces |
+| `--marker_sizes`     | Marker sizes to generate; default: `all`                                            |
 
-### 4. Output 
-The camera poses 📐are saved in ***results/camera_poses.json***.
+Example:
 
-In addition, the following **metrics** 🎯, per camera and overall, are saved in ***results/metrics.json***: 
-- mean **reprojection error**
-- standard deviation of the reprojection error
-- view score of the cameras for the calibration dataset (score introduced and used by [COLMAP](https://openaccess.thecvf.com/content_cvpr_2016/papers/Schonberger_Structure-From-Motion_Revisited_CVPR_2016_paper.pdf))
-- number of correspondences for each cameras 
+```bash
+python .\scripts\generate_moving_markers.py \
+    --out_file video\moving_markers.mp4 \
+    --marker_sizes 135
+```
 
-> The *number of correspondences* of a camera corresponds to the number of conform observations a camera has of object (=3D) points with a track length higher or equal to 2. 
+#### Static Markers
 
-> The *track* of an object (=3D) point is the set of cameras in which the point is observed, and for which the observation is conform.
+```bash
+python .\scripts\generate_static_markers.py -h
+```
 
+```text
+usage: generate_static_markers.py [-h] --out_file OUT_FILE
+                                  [--show_image]
+                                  [--color_space]
+                                  [--marker_size MARKER_SIZE]
+```
 
-<figure style="text-align: center;">
-    <img src="https://github.com/user-attachments/assets/1522df68-0d96-481a-b0d7-6efa4e12384f" alt="Texte alternatif" style="width: 40%">
-</figure>
+| Argument        | Description                                    |
+| --------------- | ---------------------------------------------- |
+| `--out_file`    | Output path of the generated image or sequence |
+| `--show_image`  | Displays the generated image for debugging     |
+| `--color_space` | Displays black pixels in the red color channel |
+| `--marker_size` | Marker size to generate; default: `all`        |
 
-<figure style="text-align: center;">
-    <img src="https://github.com/user-attachments/assets/85f6f36d-ef0e-48cd-bd1a-62212daf1036" alt="Texte alternatif" style="width: 80%">
-</figure>
+Example:
 
----
+```bash
+python .\scripts\generate_static_markers.py \
+    --out_file video\static_marker.png \
+    --marker_size 135
+```
 
+### 2. Data Acquisition
 
+Mount the projector on the ceiling and align the projection with the operating table.
 
-## **Citation**
+The recommended acquisition sequence is:
 
+1. Start all cameras.
+2. Record ROCSync.
+3. Record the checkerboard for reference calibration.
+4. Project the marker sequence.
+5. Record the checkerboard again.
+6. Record ROCSync again.
 
-BibTeX:
+The videos must subsequently be synchronized using ROCSync before running the calibration.
+
+### 3. Run the Calibration
+
+```bash
+python .\scripts\run.py -h
+```
+
+```text
+usage: run.py [-h]
+              --video_folder VIDEO_FOLDER
+              --intrinsics_folder INTRINSICS_FOLDER
+              [--output_folder OUTPUT_FOLDER]
+              --sequence_info_path SEQUENCE_INFO_PATH
+              --start_time START_TIME
+              --end_time END_TIME
+              [--alpha ALPHA]
+              [--beta BETA]
+              [--gamma GAMMA]
+              [--clahe_clip CLAHE_CLIP]
+              [--clahe_grid CLAHE_GRID]
+              [--debug_preprocessing]
+              [--save_scene]
+```
+
+Required arguments:
+
+| Argument               | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `--video_folder`       | Folder containing the synchronized camera videos |
+| `--intrinsics_folder`  | Folder containing the camera intrinsics          |
+| `--sequence_info_path` | Path to the projection-sequence metadata         |
+| `--start_time`         | Exact start time of the marker sequence          |
+| `--end_time`           | Exact end time of the marker sequence            |
+
+Optional arguments:
+
+| Argument                | Description                                         |
+| ----------------------- | --------------------------------------------------- |
+| `--output_folder`       | Parent output folder; default: `results`            |
+| `--alpha`, `--beta`     | Lower and upper bounds for image normalization      |
+| `--gamma`               | Gamma-correction value                              |
+| `--clahe_clip`          | CLAHE clip limit                                    |
+| `--clahe_grid`          | CLAHE grid size                                     |
+| `--debug_preprocessing` | Displays preprocessing and marker-detection results |
+| `--save_scene`          | Saves the reconstructed scene as a pickle file      |
+
+Example:
+
+```bash
+python .\scripts\run.py \
+    --video_folder <path-to-video-folder> \
+    --intrinsics_folder <path-to-camera-intrinsics> \
+    --sequence_info_path <path-to-sequence-info> \
+    --start_time <start-time> \
+    --end_time <end-time> \
+    --output_folder results
+```
+
+The input folders must follow this structure:
+
+```text
+<path-to-video-folder>/
+├── camera02.mp4
+├── camera03.mp4
+└── ...
+
+<path-to-camera-intrinsics>/
+├── camera02_intrinsics.json
+├── camera03_intrinsics.json
+└── ...
+```
+
+## Output
+
+The estimated camera poses are stored in:
+
+```text
+results/camera_poses.json
+```
+
+The calibration metrics are stored in:
+
+```text
+results/metrics.json
+```
+
+The metrics include:
+
+* mean reprojection error,
+* standard deviation of the reprojection error,
+* camera view score,
+* number of valid correspondences.
+
+## Evaluate the Camera Poses
+
+The estimated camera poses can be compared with a reference calibration using:
+
+```bash
+python .\scripts\eval_calib.py -h
+```
+
+```text
+usage: eval_calib.py [-h]
+                     --path PATH
+                     --gt_path GT_PATH
+                     [--scale]
+                     [--save_json]
+```
+
+| Argument      | Description                                                     |
+| ------------- | --------------------------------------------------------------- |
+| `--path`      | Path to the estimated camera-pose file                          |
+| `--gt_path`   | Path to the reference-calibration file                          |
+| `--scale`     | Estimates an optimal scale when the translation unit is unknown |
+| `--save_json` | Saves the aligned poses, scale factor, and pose errors          |
+
+Example:
+
+```bash
+python .\scripts\eval_calib.py \
+    --path results\camera_poses.json \
+    --gt_path <path-to-reference-calibration> \
+    --scale \
+    --save_json
+```
+
+## Citation
+
 ```bibtex
 @article{fluckiger2025,
   author  = {Tim Flückiger and Jonas Hein and Valery Fischer and Philipp Fürnstahl and Lilian Calvet},
@@ -189,13 +298,10 @@ BibTeX:
 }
 ```
 
----
+## License
 
-## **License**
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/tflueckiger/calib-proj/blob/main/LICENSE) file for details.
 
-This project is licensed under the **MIT License**. See the [LICENSE](https://github.com/tflueckiger/calib-proj/blob/main/LICENSE) file for details.
+## Acknowledgments
 
----
-
-## **Acknowledgments**
-This work has been supported by the [OR-X](https://or-x.ch/en/translational-center-for-surgery/) - a swiss national research infrastructure for translational surgery - and associated funding by the University of Zurich and University Hospital Balgrist. 
+This work has been supported by [OR-X](https://or-x.ch/en/translational-center-for-surgery/), a Swiss national research infrastructure for translational surgery, and by the University of Zurich and University Hospital Balgrist.
