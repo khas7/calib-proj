@@ -191,32 +191,53 @@ save_final_correspondences = False
 out_folder_calib = Path(args.output_folder)
 sequence_info_path = Path(args.sequence_info_path)
 
-###################### TEMPORAL SYNCHRONIZATION ###########################
-start_end_frames = synch(videos_folder, sequence_info_path, threshold=0.6)
-images_parent_folder = Path(videos_folder) / "frames"
+###################### IMAGES PARENT FOLDER ###########################
+if preprocess_images:
+    images_parent_folder = out_folder_calib / ".." / "frames"
+else:
+    images_parent_folder = out_folder_calib / "frames"
 
 ###################### FRAMES EXTRACTION ###########################
-extract_frames(videos_folder, sequence_info_path, start_end_frames, images_parent_folder)
+if not images_parent_folder.exists():
+    extract_frames(videos_folder, sequence_info_path, start_idx, end_idx, args.offset, images_parent_folder)
 
-###################### PRE-PROCESSING: MSMs DETECTION ###########################
-seq_info = load_seq_info_json(sequence_info_path)
-centers_unordered_path = out_folder_calib / "preprocessing" / "centers_unordered.pkl"
-centers_unordered = detect_marker_centers(images_parent_folder,
-                                          intrinsics_folder,
-                                          marker_system=seq_info['marker_system'],
-                                          inverted_projections=seq_info['invert_colors'],
-                                          show_detections=show_detection_images)
-# save_to_pickle(centers_unordered_path, centers_unordered)
-# centers_unordered = load_from_pickle(centers_unordered_path)
+###################### PRE-PROCESSING: MARKER DETECTION ###########################
+correspondences_path = out_folder_calib / "correspondences.json"
+if not correspondences_path.exists():
+    seq_info = load_seq_info_json(sequence_info_path)
+    centers_unordered_path = out_folder_calib / "preprocessing" / "centers_unordered.pkl"
+    centers_unordered = detect_marker_centers(images_parent_folder,
+                                            intrinsics_folder,
+                                            marker_system=seq_info['marker_system'],
+                                            inverted_projections=seq_info['invert_colors'],
+                                            show_detections=show_detection_images,
+                                            normalization=norm_bounds,
+                                            gamma=args.gamma,
+                                            clahe=clahe,
+                                            debug_preprocessing=args.debug_preprocessing)
+    # save_to_pickle(centers_unordered_path, centers_unordered)
+    # centers_unordered = load_from_pickle(centers_unordered_path)
 
-centers_ordered = order_centers(centers_unordered, seq_info)
-msm_centers = msm_centers_from_marker_centers(centers_ordered)
+    centers_ordered = order_centers(centers_unordered, seq_info)
+    msm_centers = msm_centers_from_marker_centers(centers_ordered)
 
 
-###################### EXTERNAL CALIBRATION ###########################
+    ###################### EXTERNAL CALIBRATION ###########################
+    correspondences = convert_to_correspondences(msm_centers)
+    save_corr = True
+else:
+    with open(correspondences_path, "r") as f:
+        corr = json.load(f)
+    correspondences = {}
+    save_corr = False
+    for cam in corr.keys():
+        correspondences[cam] = {}
+        for id, obs in corr[cam].items():
+            correspondences[cam][id] = Observation(_2d=np.array(obs))
+
 out_folder_calib.mkdir(parents=True, exist_ok=True)
 intrinsics = construct_cameras_intrinsics(images_parent_folder, intrinsics_folder)
-correspondences = convert_to_correspondences(msm_centers)
+
 external_calibrator = ExternalCalibrator(correspondences=correspondences,
                                         intrinsics=intrinsics,
                                         config=external_calibrator_config,
