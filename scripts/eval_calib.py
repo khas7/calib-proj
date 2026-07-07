@@ -186,24 +186,28 @@ if __name__ == "__main__":
         "--path",
         required=True,
         type=str,
-        default=None
+        default=None,
+        help="Path to the camera pose file."
     )
 
     parser.add_argument(
         "--gt_path",
         required=True,
         type=str,
-        default=None
+        default=None,
+        help="Path to the reference calibration file."
     )
     parser.add_argument(
         "--scale",
         action="store_true",
-        default=False
+        default=False,
+        help="Activate if the units of the translation vector in the camera poses is not known (e.g. when calibrated using projected markers)."
     )
     parser.add_argument(
         "--save_json",
         action="store_true",
-        default=False
+        default=False,
+        help="Saves the aligned camera poses, the scale factor, and the evaluation metrics (translation and rotation errors) to a json file located in a subfolder in the camera poses parent directory."
     )
 
     args = parser.parse_args()

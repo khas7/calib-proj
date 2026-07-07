@@ -68,28 +68,37 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument(
     "--video_folder",
-    type=str
+    type=str,
+    required=True,
+    help="Path to the video folder, containing synchronized videos."
 )
 
 parser.add_argument(
     "--intrinsics_folder",
-    type=str
+    type=str,
+    required=True,
+    help="Path to the intrinsics folder containing the intrinsics json files. Make sure the camera names in the intrinsics folder are the same as in the videos."
 )
 
 parser.add_argument(
     "--output_folder",
     type=str,
-    default=r".\results"
+    default=r".\results",
+    help="Definition of the output parent folder. Defaults to 'results'"
 )
 
 parser.add_argument(
     "--sequence_info_path",
-    type=str
+    type=str,
+    required=True,
+    help="Path to the sequence info. Only important for the projector fps, and number of marker positions, so that frames can correctly be extracted from the videos."
 )
 
 parser.add_argument(
     "--start_time",
-    type=str
+    type=str,
+    required=True,
+    help="The exact start time of the marker sequence in the video. This must be determined beforehand."
 )
 
 parser.add_argument(
@@ -102,43 +111,50 @@ parser.add_argument(
 parser.add_argument(
     "--alpha",
     type=int,
-    default=None
+    default=None,
+    help="Lower bound for image normalization. Defaults to None. If BETA is provided, but no ALPHA, ALPHA defaults to 0. If no ALPHA and no BETA are provided, no image normalization is applied."
 )
 
 parser.add_argument(
     "--beta",
     type=int,
-    default=None
+    default=None,
+    help="Upper bound for image normalization. Defaults to None. If ALPHA is provided, but no BETA, BETA defaults to 255. If no ALPHA and no BETA are provided, no image normalization is applied."
 )
 
 parser.add_argument(
     "--gamma",
     type=float,
-    default=None
+    default=None,
+    help="Gamma correction value. GAMMA > 1.0 brightens the image, GAMMA < 1.0 darkens the image. Defaults to None."
 )
 
 parser.add_argument(
     "--clahe_clip",
     type=int,
-    default=None
+    default=None,
+    help="Clahe clip limit for contrast enhancement using CLAHE. Defaults to None."
 )
 
 parser.add_argument(
     "--clahe_grid",
     type=str,
-    default=None
+    default=None,
+    help="Clahe grid size for contrast enhancement using CLAHE. Defaults to None."
 )
 
 parser.add_argument(
     "--debug_preprocessing",
     action="store_true",
-    default=False
+    default=False,
+    help="Shows the image before and after preprocessing, including number of marker detections in an image."
 )
 
 parser.add_argument(
     "--save_scene",
     action="store_true",
-    default=False
+    default=False,
+    help="Saves the scene as a pickle file in the output directory."
 )
 
 args = parser.parse_args()
@@ -172,15 +188,15 @@ intrinsics_folder = Path(args.intrinsics_folder)
 external_calibrator_config = ExternalCalibratorConfig(
     reprojection_error_threshold = 1,
     camera_score_threshold = 200, 
-    verbose = 1, # 0: only final report, 1: only camera name when added, 2: full verbose
+    verbose = 2, # 0: only final report, 1: only camera name when added, 2: full verbose
     least_squares_verbose = 0, # 0: silent, 1: report only final results, 2: report every iteration
 )
 
 # PRE-PROCESSING PARAMETERS
 show_detection_images = False
-save_detection_images = False
-show_viz = True
-save_viz = False
+save_detection_images = True
+show_viz = False
+save_viz = True
 save_eval_metrics_to_json = True
 save_scene = args.save_scene
 save_final_correspondences = False

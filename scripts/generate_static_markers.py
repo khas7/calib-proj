@@ -144,7 +144,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--marker_size",
-        default="all"
+        default="all",
+        help="Which marker size to generate. Defaults to 'all'"
     )
 
     args = parser.parse_args()
