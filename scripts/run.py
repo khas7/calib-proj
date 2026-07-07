@@ -1,12 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
+import json
+import cv2
 
 from calib_commons.data.load_calib import construct_cameras_intrinsics
 from calib_commons.data.data_pickle import save_to_pickle, load_from_pickle
 from calib_commons.eval_generic_scene import eval_generic_scene
 from calib_commons.viz import visualization as generic_vizualization
 from calib_commons.world_frame import WorldFrame
+from calib_commons.observation import Observation
 
 from calib_proj.utils import visualization
 from calib_proj.core.external_calibrator import ExternalCalibrator
