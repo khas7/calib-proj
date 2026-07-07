@@ -48,7 +48,11 @@ def detect_marker_centers(images_parent_folder,
                    intrinsics_folder, 
                    marker_system: str,
                    inverted_projections = True,
-                   show_detections = False
+                   show_detections = False,
+                   normalization: list[int] | None = None,
+                   gamma: float | None = None,
+                   clahe: cv.CLAHE = None,
+                   debug_preprocessing = False
                    ): 
     
     print(f"\nDetecting markers started...")
@@ -98,12 +102,31 @@ def detect_marker_centers(images_parent_folder,
             # print(filename)
 
             img = cv.imread(file_path)
+            before = cv.cvtColor(img.copy(), cv.COLOR_BGR2GRAY)
+            if normalization is not None:
+                img = cv.normalize(img, None, alpha=normalization[0], beta=normalization[1], norm_type=cv.NORM_MINMAX)
+            
+            if gamma is not None:
+                img = np.clip(np.power(img.astype(np.float32) / 255, gamma) * 255, 0, 255).astype(np.uint8)
+
+            if clahe is not None:
+                img = clahe.apply(cv.cvtColor(img, cv.COLOR_BGR2GRAY))
+            
+            if debug_preprocessing:
+                deb = np.hstack((before, img))
+                cv.imshow("Before and after preprocessing", cv.resize(deb, (deb.shape[1]//8, deb.shape[0]//8)))
+                cv.waitKey(0)
+
             if inverted_projections: 
                 img = cv.bitwise_not(img)
             
             if marker_system_name == 'aruco':
                 # dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_50)
                 markers, img_draw = detect_aruco_markers(img, dict, show_draw_img=show_detections, add_half_pixel_shift=False)
+                if debug_preprocessing:
+                    print(f"{len(markers) = }")
+                    markers_before, _ = detect_aruco_markers(cv.bitwise_not(before), dict, show_draw_img=show_detections, add_half_pixel_shift=False)
+                    print(f"{len(markers_before) = }")
             elif marker_system_name == 'apriltag':
                 markers, img_draw = detect_apriltag_markers_detector(img, at_detector, show_draw_img=show_detections)
 
